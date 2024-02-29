@@ -46,7 +46,7 @@ const questions = [
     {  // question 5
         question: "Who is the current President of India?",
         answers: [
-            {text: "Nitin Gadkari", correct : true},
+            {text: "Nitin Gadkari", correct : false},
             {text: "Narendra Modi", correct : false},
             {text: "Droupadi Murmu", correct : true},
             {text: "Rahul gandhi", correct : false},
@@ -57,7 +57,7 @@ const questions = [
 ];
 
 const questionElement = document.querySelector("#question");
-const answerButton = document.querySelector("#answer-button");
+const answerButtons = document.querySelector("#answer-button");
 const nextButton = document.querySelector("#next-btn");
 
 let currentQuestionIndex = 0;
@@ -66,7 +66,7 @@ let score = 0;
 function startQuiz(){
     currentQuestionIndex = 0;
     score = 0;
-    nextButton.innerHtml = "Next";
+    nextButton.innerHtml = "Next"; 
     showQuestion();
 }
 
@@ -80,16 +80,66 @@ function showQuestion(){
         const button = document.createElement("button");
         button.innerHTML= answer.text;
         button.classList.add("btn");
-        answerButton.appendChild(button);
+        answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click",selectAnswer);
     });
 }
 
 
-// function resetstate(){
-//     nextButton.style.display = "none";
-//     while(answerButton.firstChild){
-//         answerButton.removeChild(answerButtons,firstChild);
-//     }
+function resetstate(){
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
 
-// }
+}
+
+
+
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    });
+    nextButton.style.display = "block";
+}
+
+function showScore(){
+    resetstate();
+    questionElement.innerHTML = ` You scored ${score} out of ${questions.length}!`
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+};
+
+
+nextButton.addEventListener("click",()=>{
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+})
 showQuestion();
